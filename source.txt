@@ -1,0 +1,27 @@
+$ Keywords $
+printiza() inputiza; if ow until main def var return 
+$ data types $
+i8 i16 i32 i64 i128 isize
+f8 f16 f32 f64 f128 fsize
+u8 u16 u32 u64 u128 usize
+bool
+str
+$ Keywords for logical operations $
+bigger_than smaller_than equal not_equal
+and or
+$ Literals $
+2.32 2 -2, -0.1
+"ali32$"
+True,False
+$ operations $
++ - * / // % =
+~ == ~= => >= <= =< && & || |
+$ some valid sentences... $
+var !ali : i8 = 1; $ assignment and definition of variables. $
+def pri() -> i8 $ definition of functions $
+[
+    return 0;
+]
+$ this is PLOIZA $
+$$ the code provided in this file are just for testing scanner behavior
+    and the code is not necessarily valid in PLOIZA $$

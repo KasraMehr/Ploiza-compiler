@@ -1,0 +1,25 @@
+
+<printiza> <(> <)> <inputiza> <;> <if> <otherwise> <loop> <main> <def> <var> <return> 
+
+<i8> <i16> <i32> <i64> <i128> <isize> 
+<f8> <f16> <f32> <f64> <f128> <fsize> 
+<u8> <u16> <u32> <u64> <u128> <usize> 
+<bool> 
+<str> 
+
+<>> <<> <==> <~=> 
+<&&> <||> 
+
+<float_literal> <integer_literal> <integer_literal> <,> <float_literal> 
+<string_literal> 
+<boolean_literal> <,> <boolean_literal> 
+
+<+> <-> <*> </> <//> <^> <=> 
+<~> <==> <~=> <>=> <>=> <<=> <<=> <&&> <&> <||> <|> 
+
+<var> <variable> <:> <i8> <=> <integer_literal> <;> 
+<def> <function> <(> <)> <->> <i8> 
+<[> 
+<return> <integer_literal> <;> 
+<]> 
+
