@@ -414,7 +414,7 @@ ASTNode* parsePrimary() {
     return NULL;
 }
 
-// مدیریت عملگرهای una­ry (مانند !)
+// مدیریت عملگرهای unary (مانند !)
 ASTNode* parseUnary() {
     while (*expr == ' ') expr++;
     if (*expr == '!') {
@@ -422,7 +422,7 @@ ASTNode* parseUnary() {
         ASTNode* operand = parseUnary();
         return createOperatorNode(OP_NOT, operand, NULL);
     }
-    // می‌توان عملگر una­ry - را نیز اضافه کرد.
+    // می‌توان عملگر unary - را نیز اضافه کرد.
     return parsePrimary();
 }
 
@@ -443,38 +443,93 @@ ASTNode* parseExpression(int minPrecedence) {
     return left;
 }
 
-// تجزیه دستورات (شامل تعریف متغیر)
+const char* getVarTypeString(VarType type) {
+    switch (type) {
+        case TYPE_INT: return "int";
+        case TYPE_FLOAT: return "float";
+        case TYPE_DOUBLE: return "double";
+        case TYPE_BOOLEAN: return "boolean";
+        case TYPE_STRING: return "string";
+        default: return "unknown";
+    }
+}
+
 ASTNode* parseStatement() {
     while (*expr == ' ') expr++;
-    // بررسی انواع متغیر: int, float, double, boolean, string
-    const char* types[] = {"int", "float", "double", "boolean", "string"};
-    int typeFound = -1;
-    for (int i = 0; i < 5; i++) {
-        size_t len = strlen(types[i]);
-        if (strncmp(expr, types[i], len) == 0 && isspace(expr[len])) {
-            typeFound = i;
-            expr += len;
-            break;
-        }
-    }
-    if (typeFound != -1) {
-        // حذف فاصله‌ها
+
+    if (strncmp(expr, "var", 3) == 0 && isspace(expr[3])) {
+        expr += 3;
         while (*expr == ' ') expr++;
-        // خواندن نام متغیر
+
+        if (*expr != '!') {
+            printf("error: variable name should start with !\n");
+            exit(1);
+        }
+        expr++;
+
         char varname[32] = {0};
         int i = 0;
-        while (isalnum(*expr) && i < 31) {
+        while (isalnum(*expr) || *expr == '_') {
             varname[i++] = *expr;
             expr++;
         }
+
+        while (*expr == ' ') expr++;
+
+        if (*expr != ':') {
+            printf("error: ':' is for declaring variable type.\n");
+            exit(1);
+        }
+        expr++;
+        while (*expr == ' ') expr++;
+
+        char datatype[16] = {0};
+        int j = 0;
+        while (isalnum(*expr) || *expr == '_') {
+            datatype[j++] = *expr;
+            expr++;
+        }
+
+        // نگاشت نوع داده به VarType
+        VarType target;
+        if (strcmp(datatype, "i8") == 0 || strcmp(datatype, "u8") == 0 ||
+            strcmp(datatype, "i16") == 0 || strcmp(datatype, "u16") == 0 ||
+            strcmp(datatype, "i32") == 0 || strcmp(datatype, "u32") == 0 ||
+            strcmp(datatype, "i64") == 0 || strcmp(datatype, "u64") == 0 ||
+            strcmp(datatype, "i128") == 0 || strcmp(datatype, "u128") == 0 ||
+            strcmp(datatype, "isize") == 0 || strcmp(datatype, "usize") == 0) {
+            target = TYPE_INT;
+        }
+        else if (strcmp(datatype, "f8") == 0 || strcmp(datatype, "f16") == 0 ||
+                 strcmp(datatype, "f32") == 0 || strcmp(datatype, "f64") == 0 ||
+                 strcmp(datatype, "f128") == 0 || strcmp(datatype, "fsize") == 0) {
+            target = TYPE_FLOAT;
+        }
+        else if (strcmp(datatype, "d8") == 0 || strcmp(datatype, "d16") == 0 ||
+                 strcmp(datatype, "d32") == 0 || strcmp(datatype, "d64") == 0 ||
+                 strcmp(datatype, "d128") == 0 || strcmp(datatype, "dsize") == 0) {
+            target = TYPE_DOUBLE;
+        }
+        else if (strcmp(datatype, "bool") == 0) {
+            target = TYPE_BOOLEAN;
+        }
+        else if (strcmp(datatype, "str") == 0) {
+            target = TYPE_STRING;
+        }
+        else {
+            printf("error: datatype is not supported. %s\n", datatype);
+            exit(1);
+        }
+
+        while (*expr == ' ') expr++;
+
         ASTNode* value = NULL;
         if (*expr == '=') {
-            expr++; // حذف =
+            expr++;  // مصرف '='
             value = parseExpression(0);
         }
-        // برای تعریف متغیر از گره DECLARATION استفاده می‌شود
-        // در فیلد decl.datatype، نوع به صورت رشته (مثلاً "int") ذخیره می‌شود.
-        return createDeclarationNode(types[typeFound], varname, value);
+
+        return createDeclarationNode(getVarTypeString(target), varname, value);
     } else {
         return parseExpression(0);
     }
@@ -628,7 +683,7 @@ Value evaluate(ASTNode* node) {
 // ****************** تابع main ******************
 int main() {
     // اگر آخرین دستور هم به نقطه‌ویرگول ختم شود یا نشود؛ مهم این است که اشاره‌گر به انتها برسد.
-    expr = "string x = 4;";
+    expr = "var !x : str = 'true';";
 
     printf("Abstract Syntax Tree:\n");
     while (*expr) {
@@ -641,12 +696,6 @@ int main() {
             break;
         }
         printAST(root, 0);
-        Value res = evaluate(root);
-
-        char buf[256];
-        toString(res, buf, sizeof(buf));
-        printf("Result: %s\n\n", buf);
-
         freeAST(root);
 
         // مصرف تمام کاراکترهای فاصله و جداکننده‌ها
