@@ -12,7 +12,6 @@ void generateASTImage(ASTNode *root, const char *dotFilename, const char *imgFil
         printf("Error: failed to execute Graphviz command.\n");
     } else {
         printf("AST image generated successfully: %s\n", imgFilename);
-        openImage(imgFilename);
         char commandImage[256];
         snprintf(commandImage, sizeof(commandImage), "start %s", imgFilename);
         system(commandImage);
